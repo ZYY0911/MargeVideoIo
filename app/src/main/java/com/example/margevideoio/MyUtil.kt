@@ -3,7 +3,11 @@ package com.example.margevideoio
 import android.content.Context
 import org.opencv.core.CvType
 import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.imgproc.Imgproc
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -67,7 +71,35 @@ class MyUtil {
         if (!file.exists()) {
             file.mkdirs()
         }
-        val file1 = File(file.absolutePath, System.currentTimeMillis().toString() + ".jpg")
+        val file1 = File(file.absolutePath, System.currentTimeMillis().toString() + ".png")
         Imgcodecs.imwrite(file1.absolutePath, mat)
+    }
+
+    fun trapezoidTransform(src: Mat,dstPoints: MatOfPoint2f): Mat {
+        // 获取图像的高度和宽度
+        val height = src.rows()
+        val width = src.cols()
+
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_BGR2BGRA)
+        // 定义梯形的四个顶点
+        val srcPoints = MatOfPoint2f(
+            Point(0.0, height.toDouble()),           // 左下
+            Point(width.toDouble(), height.toDouble()),  // 右下
+            Point(width.toDouble(), 0.0),              // 右上
+            Point(0.0, 0.0)                     // 左上
+        )
+        // 计算透视变换矩阵
+        val perspectiveMatrix = Imgproc.getPerspectiveTransform(srcPoints, dstPoints)
+
+        // 应用透视变换
+        val trapezoidImage = Mat(src.size(),CvType.CV_8UC4)
+        Imgproc.warpPerspective(
+            src,
+            trapezoidImage,
+            perspectiveMatrix,
+            Size(width.toDouble(), height.toDouble())
+        )
+
+        return trapezoidImage
     }
 }
