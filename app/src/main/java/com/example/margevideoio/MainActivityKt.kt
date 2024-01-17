@@ -24,6 +24,7 @@ import org.opencv.core.Point
 import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.core.Size
+import org.opencv.imgcodecs.Imgcodecs.imread
 import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.cvtColor
 import org.opencv.imgproc.Imgproc.fillPoly
@@ -58,7 +59,39 @@ class MainActivityKt : AppCompatActivity() {
         Thread {
             cameraMatrix = mUtil!!.readMatFromPath("${rootPath}cameraMatrix.txt")
             distCoeffs = mUtil!!.readMatFromPath("${rootPath}distCoeffs.txt")
-            loadVideoIo()
+//            loadVideoIo()
+            var src1 = imread("${cacheDir.absolutePath}${File.separator}quanjing1.JPG")
+            var out = Mat()
+//            var croppedBefore  = mUtil!!.getBirdView(src1)
+//            mUtil!!.saveScreenshotToTemp(croppedBefore,this)
+//            src1 = imread("${cacheDir.absolutePath}${File.separator}test2.jpg")
+            Calib3d.undistort(src1, out, cameraMatrix, distCoeffs)
+//            Imgproc.cvtColor(out, out, Imgproc.COLOR_BGR2RGB)
+            mUtil!!.saveScreenshotToTemp(out,this)
+            var src2 = imread("${cacheDir.absolutePath}${File.separator}quanjing2.JPG")
+            var out2 = Mat()
+//            var croppedBefore  = mUtil!!.getBirdView(src1)
+//            mUtil!!.saveScreenshotToTemp(croppedBefore,this)
+//            src1 = imread("${cacheDir.absolutePath}${File.separator}test2.jpg")
+            Calib3d.undistort(src2, out2, cameraMatrix, distCoeffs)
+//            Imgproc.cvtColor(out, out, Imgproc.COLOR_BGR2RGB)
+            mUtil!!.saveScreenshotToTemp(out2,this)
+            var src3 = imread("${cacheDir.absolutePath}${File.separator}quanjing3.JPG")
+            var out3 = Mat()
+//            var croppedBefore  = mUtil!!.getBirdView(src1)
+//            mUtil!!.saveScreenshotToTemp(croppedBefore,this)
+//            src1 = imread("${cacheDir.absolutePath}${File.separator}test2.jpg")
+            Calib3d.undistort(src3, out3, cameraMatrix, distCoeffs)
+//            Imgproc.cvtColor(out, out, Imgproc.COLOR_BGR2RGB)
+            mUtil!!.saveScreenshotToTemp(out3,this)
+            var src4 = imread("${cacheDir.absolutePath}${File.separator}quanjing4.JPG")
+            var out4 = Mat()
+//            var croppedBefore  = mUtil!!.getBirdView(src1)
+//            mUtil!!.saveScreenshotToTemp(croppedBefore,this)
+//            src1 = imread("${cacheDir.absolutePath}${File.separator}test2.jpg")
+            Calib3d.undistort(src4, out4, cameraMatrix, distCoeffs)
+//            Imgproc.cvtColor(out, out, Imgproc.COLOR_BGR2RGB)
+            mUtil!!.saveScreenshotToTemp(out4,this)
         }.start()
     }
 
@@ -103,9 +136,10 @@ class MainActivityKt : AppCompatActivity() {
             Calib3d.undistort(src3, frame3, cameraMatrix, distCoeffs)
             Calib3d.undistort(src4, frame4, cameraMatrix, distCoeffs)
 
+
             //前方
 //            transpose(frame1,frame1)
-            val beforePoints = MatOfPoint2f(
+            val beforePoints = MatOfPoint(
                 //            Point(0.0, height.toDouble()),           // 左下
 //            Point(width.toDouble(), height.toDouble()),  // 右下
 //            Point(width.toDouble(), 0.0),              // 右上
@@ -115,36 +149,53 @@ class MainActivityKt : AppCompatActivity() {
                 Point(frame1.width().toDouble(), 0.0),
                 Point(0.0, 0.0)
             )
-            frame1 = mUtil!!.trapezoidTransform(frame1, beforePoints)
-            transpose(frame1, frame1)
-            flip(frame1, frame1, 0)
+//            Imgproc.cvtColor(frame1, frame1, Imgproc.COLOR_BGR2BGRA)
+            var croppedBefore  = mUtil!!.getBirdView(frame1)
+            mUtil!!.saveScreenshotToTemp(croppedBefore,baseContext)
+
+//            var mask = Mat(frame1.size(), CvType.CV_8UC1)
+//            Imgproc.fillPoly(mask, listOf(beforePoints), Scalar(255.0, 255.0, 255.0, 0.0))
+//            frame1.copyTo(croppedBefore, mask)
+//            frame1 = mUtil!!.trapezoidTransform(frame1, beforePoints)
+            transpose(croppedBefore, croppedBefore)
+            flip(croppedBefore, croppedBefore, 0)
 
             val bitmapFront = Bitmap.createBitmap(
-                frame1.width(), frame1.height(), Bitmap.Config.ARGB_8888
+                croppedBefore.width(), croppedBefore.height(), Bitmap.Config.ARGB_8888
             )
-            Utils.matToBitmap(frame1, bitmapFront, true)
+            Utils.matToBitmap(croppedBefore, bitmapFront, true)
             //右方
-            frame2 = mUtil!!.trapezoidTransform(frame2, beforePoints)
+//            frame2 = mUtil!!.trapezoidTransform(frame2, beforePoints)
+
+            var croppedBefore2  = mUtil!!.getBirdView(frame2)
+            mUtil!!.saveScreenshotToTemp(croppedBefore2,baseContext)
+
+            Imgproc.cvtColor(croppedBefore2, croppedBefore2, Imgproc.COLOR_BGR2BGRA)
+//            mask = Mat(croppedBefore2.size(), CvType.CV_8UC1)
+//            Imgproc.fillPoly(mask, listOf(beforePoints), Scalar(255.0, 255.0, 255.0, 0.0))
+//            val croppedRight = Mat()
+//            croppedBefore2.copyTo(croppedRight, mask)
+
             val bitmapRight = Bitmap.createBitmap(
-                frame2.width(), frame2.height(), Bitmap.Config.ARGB_8888
+                croppedBefore2.width(), croppedBefore2.height(), Bitmap.Config.ARGB_8888
             )
-            Utils.matToBitmap(frame2, bitmapRight, true)
-            //左方
-            frame3 = mUtil!!.trapezoidTransform(frame3, beforePoints)
-            //水平翻转
-            flip(frame3, frame3, 0)
-            val bitmapLeft = Bitmap.createBitmap(
-                frame3.width(), frame3.height(), Bitmap.Config.ARGB_8888
-            )
-            Utils.matToBitmap(frame3, bitmapLeft, true)
-            //后方
-            frame4 = mUtil!!.trapezoidTransform(frame4, beforePoints)
-            transpose(frame4, frame4)
-            flip(frame4, frame4, 1)
-            val bitmapBack = Bitmap.createBitmap(
-                frame4.width(), frame4.height(), Bitmap.Config.ARGB_8888
-            )
-            Utils.matToBitmap(frame4, bitmapBack, true)
+            Utils.matToBitmap(croppedBefore2, bitmapRight, true)
+//            //左方
+//            frame3 = mUtil!!.trapezoidTransform(frame3, beforePoints)
+//            //水平翻转
+//            flip(frame3, frame3, 0)
+//            val bitmapLeft = Bitmap.createBitmap(
+//                frame3.width(), frame3.height(), Bitmap.Config.ARGB_8888
+//            )
+//            Utils.matToBitmap(frame3, bitmapLeft, true)
+//            //后方
+//            frame4 = mUtil!!.trapezoidTransform(frame4, beforePoints)
+//            transpose(frame4, frame4)
+//            flip(frame4, frame4, 1)
+//            val bitmapBack = Bitmap.createBitmap(
+//                frame4.width(), frame4.height(), Bitmap.Config.ARGB_8888
+//            )
+//            Utils.matToBitmap(frame4, bitmapBack, true)
 
             val showBitmap = Bitmap.createBitmap(videoW, videoH!!, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(showBitmap)
@@ -164,21 +215,21 @@ class MainActivityKt : AppCompatActivity() {
                 ), 0.0f, 0.0f, null
             )
 
-            val drawH = showBitmap.height - showBitmap.height * 0.7
-            canvas.drawBitmap(
-                bitmapLeft.scale(
-                    bitmapRight.width,
-                    (bitmapRight.height * 0.35).toInt()
-                ), 0.0f, (bitmapRight.height * 0.35 + drawH).toFloat(), null
-            )
-            //后
-            val drawW = showBitmap.width - showBitmap.width * 0.7
-            canvas.drawBitmap(
-                bitmapBack.scale(
-                    (showBitmap.width * 0.35).toInt(),
-                    showBitmap.height
-                ), (showBitmap.width * 0.35 + drawW).toFloat(), 0.0f, null
-            )
+//            val drawH = showBitmap.height - showBitmap.height * 0.7
+//            canvas.drawBitmap(
+//                bitmapLeft.scale(
+//                    bitmapRight.width,
+//                    (bitmapRight.height * 0.35).toInt()
+//                ), 0.0f, (bitmapRight.height * 0.35 + drawH).toFloat(), null
+//            )
+//            //后
+//            val drawW = showBitmap.width - showBitmap.width * 0.7
+//            canvas.drawBitmap(
+//                bitmapBack.scale(
+//                    (showBitmap.width * 0.35).toInt(),
+//                    showBitmap.height
+//                ), (showBitmap.width * 0.35 + drawW).toFloat(), 0.0f, null
+//            )
 
 
             runOnUiThread {

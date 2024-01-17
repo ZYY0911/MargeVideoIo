@@ -19,7 +19,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 super.run();
-                loadVideoIo();
+//                loadVideoIo();
+
             }
         }.start();
     }
