@@ -22,13 +22,13 @@ class OpenCvParam {
     val innShiftH = 50.0
 
     //拼接图像的总宽度/高度
-    val totalW = 600 + 2 * shiftW
-    val totalH = 1000 + 2 * shiftH
+    val totalW = 600 + 2 * shiftW //1200
+    val totalH = 1000 + 2 * shiftH //1600
 
     //汽车所占矩形区域的四个角
     val xl = shiftW + 180 + innShiftW
     val xr = totalW - xl
-    val yt = shiftH + 200 + innShiftH
+    val yt = shiftH + 200 + innShiftH//550
     val yb = totalH - yt
 
     val projectKeyPoints = mapOf(
@@ -81,6 +81,7 @@ class OpenCvParam {
             //1267 435
             //603 663
             //1461 703
+
             //523 414
             //1235 390
             //413 611
@@ -142,7 +143,9 @@ class OpenCvParam {
     fun flip(image: Mat, name: String): Mat {
         return when (name) {
             "front" -> image.clone()
-            "back" -> image.clone().also { Core.flip(it, it, -1) }
+            "back" -> image.clone().also {
+                Core.flip(it, it, -1)
+                }
             "left" -> {
                 val transposed = Mat()
                 Core.transpose(image, transposed)

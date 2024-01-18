@@ -1,6 +1,12 @@
 package com.example.margevideoio
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
@@ -15,35 +21,6 @@ import java.io.IOException
 
 
 class MyUtil {
-    // private Mat readMatFromFile(String filePath) {
-    //        Mat mat = null;
-    //
-    //        try {
-    //            BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath));
-    //
-    //            // 读取行数和列数
-    //            int rows = Integer.parseInt(bufferedReader.readLine());
-    //            int cols = Integer.parseInt(bufferedReader.readLine());
-    //
-    //            // 创建Mat对象
-    //            mat = new Mat(rows, cols, CvType.CV_64F);
-    //
-    //            // 读取数据并填充Mat对象
-    //            for (int i = 0; i < rows; i++) {
-    ////                String[] values = bufferedReader.readLine().split(" ");
-    //                for (int j = 0; j < cols; j++) {
-    //                    double value = Double.parseDouble(bufferedReader.readLine().trim());
-    //                    mat.put(i, j, value);
-    //                }
-    //            }
-    //
-    //            bufferedReader.close();
-    //        } catch (IOException e) {
-    //            e.printStackTrace();
-    //        }
-    //
-    //        return mat;
-    //    }
     fun readMatFromPath(filePath: String): Mat {
         var mat: Mat? = null
         try {
@@ -158,9 +135,13 @@ class MyUtil {
 
     }
 
+    /**
+     * 获取鸟瞰图
+     */
     fun getVideBird(src: Mat, srcPoint: Mat, dstPoint: Mat, size: Size): Mat {
         Imgproc.cvtColor(src, src, Imgproc.COLOR_BGR2BGRA)
         val trapezoidImage = Mat(size, CvType.CV_8UC4)
+        //映射到输出图像上的4个点
         val perspectiveTransform = Imgproc.getPerspectiveTransform(srcPoint, dstPoint)
         Imgproc.warpPerspective(
             src,
@@ -168,8 +149,31 @@ class MyUtil {
             perspectiveTransform,
             size
         )
-
         return trapezoidImage
     }
 
+    //自由裁剪
+    fun cropImageFree(mFileBitmap: Bitmap, points: List<Point>): Bitmap? {
+        val resultingImage = Bitmap.createBitmap(
+            mFileBitmap.getWidth(),
+            mFileBitmap.getHeight(), mFileBitmap.getConfig()
+        )
+        val canvas = Canvas(resultingImage)
+        val paint = Paint()
+        paint.isAntiAlias = true
+        val path = Path()
+        for (i in 0 until points.size) {
+            val x: Float = points.get(i).x.toFloat()
+            val y: Float = points.get(i).y.toFloat()
+            path.lineTo(x, y)
+        }
+        canvas.drawPath(path, paint)
+        paint.xfermode =
+            PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(mFileBitmap, 0.0f, 0.0f, paint)
+
+        //保存裁剪后的bitmap
+        //        new ScreenFiles(this).saveScreenshotToFile(bitmap);
+        return resultingImage
+    }
 }

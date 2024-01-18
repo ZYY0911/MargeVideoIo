@@ -16,9 +16,11 @@ import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.calib3d.Calib3d
 import org.opencv.core.Mat
+import org.opencv.core.Point
 import org.opencv.core.Size
 import org.opencv.videoio.VideoCapture
 import java.io.File
+
 
 class MargeVideo : AppCompatActivity() {
 
@@ -87,6 +89,8 @@ class MargeVideo : AppCompatActivity() {
             Calib3d.undistort(src2, frame2, cameraMatrix, distCoeffs)
             Calib3d.undistort(src3, frame3, cameraMatrix, distCoeffs)
             Calib3d.undistort(src4, frame4, cameraMatrix, distCoeffs)
+
+
 
             mUtil!!.saveScreenshotToTemp(frame1, baseContext)
             mUtil!!.saveScreenshotToTemp(frame2, baseContext)
@@ -195,6 +199,16 @@ class MargeVideo : AppCompatActivity() {
                 true
             )
 
+            val pointList: MutableList<Point> = ArrayList()
+            pointList.add(Point(0.0, 0.0))
+            pointList.add(Point(1000.0, 0.0))
+            pointList.add(Point(1000.0, 500.0))
+            pointList.add (Point(800.0, 600.0))
+            pointList.add (Point(700.0, 400.0))
+
+
+            val cropImageFree = mUtil!!.cropImageFree(finalBitmap, pointList)
+            Log.i(TAG, "loadVideo: ")
             runOnUiThread {
                 val canvas = mSv!!.holder.lockCanvas()
                 val finalBitmap1 = finalBitmap.scale(mSv!!.width, mSv!!.height)
